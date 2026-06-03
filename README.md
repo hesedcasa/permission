@@ -16,11 +16,11 @@ Permission management plugin
 
 <!-- usage -->
 ```sh-session
-$ npm install -g permission
+$ npm install -g @hesed/permission
 $ permission COMMAND
 running command...
 $ permission (--version)
-permission/0.1.0 linux-x64 node-v22.22.3
+@hesed/permission/0.1.0 linux-x64 node-v22.22.3
 $ permission --help [COMMAND]
 USAGE
   $ permission COMMAND
