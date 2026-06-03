@@ -1,7 +1,7 @@
 {
   "name": "@hesed/permission",
   "description": "Permission management plugin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Hesed",
   "bin": {
     "permission": "./bin/run.js"
