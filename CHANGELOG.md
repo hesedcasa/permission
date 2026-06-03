@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/hesedcasa/permission/compare/v0.1.1...v0.2.0) (2026-06-03)
+
+
+### 🎉 Features
+
+* export permission config utilities from package entry point ([a1edfd4](https://github.com/hesedcasa/permission/commit/a1edfd49c9fc5172357acaa59c20a746ae786d8b))
+
 ## [0.1.1](https://github.com/hesedcasa/permission/compare/v0.1.0...v0.1.1) (2026-06-03)
 
 
