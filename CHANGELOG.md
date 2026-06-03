@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.1](https://github.com/hesedcasa/permission/compare/v0.1.0...v0.1.1) (2026-06-03)
+
+
+### 🛠️ Fixes
+
+* add missing support files ([1dadfeb](https://github.com/hesedcasa/permission/commit/1dadfeb08c895038f2bf139be22303ca0e082275))
+* move name to hesed ([d0f764f](https://github.com/hesedcasa/permission/commit/d0f764f9d831faefdb47c1afbbd0cdf235856426))
+
+## Changelog
+
 ## Changelog
 
 All notable changes to this project will be documented in this file.
