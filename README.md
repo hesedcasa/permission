@@ -20,7 +20,7 @@ $ npm install -g permission
 $ permission COMMAND
 running command...
 $ permission (--version)
-permission/0.1.0 darwin-arm64 node-v22.14.0
+permission/0.1.0 linux-x64 node-v22.22.3
 $ permission --help [COMMAND]
 USAGE
   $ permission COMMAND
