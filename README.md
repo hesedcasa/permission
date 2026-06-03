@@ -2,9 +2,9 @@
 
 Permission management plugin
 
-[![Version](https://img.shields.io/npm/v/permission.svg)](https://npmjs.org/package/permission)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/hesedcasa/permission/blob/main/LICENSE)
-[![Downloads/week](https://img.shields.io/npm/dw/permission.svg)](https://npmjs.org/package/permission)
+[![Version](https://img.shields.io/npm/v/@hesed/permission.svg)](https://npmjs.org/package/@hesed/permission)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](https://github.com/hesedcasa/@hesed/permission/blob/main/LICENSE)
+[![Downloads/week](https://img.shields.io/npm/dw/@hesed/permission.svg)](https://npmjs.org/package/@hesed/permission)
 
 <!-- toc -->
 * [permission](#permission)

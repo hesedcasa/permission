@@ -1,5 +1,5 @@
 {
-  "name": "permission",
+  "name": "@hesed/permission",
   "description": "Permission management plugin",
   "version": "0.1.0",
   "author": "Hesed",
