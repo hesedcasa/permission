@@ -16,8 +16,8 @@ export default class PermissionReset extends Command {
   async run(): Promise<void> {
     const {flags} = await this.parse(PermissionReset)
 
-    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
-    if (config.rules.length === 0 && config.allowRules.length === 0) {
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], denyRules: []}
+    if (config.denyRules.length === 0 && config.allowRules.length === 0) {
       this.log('No permission rules to reset.')
       return
     }
@@ -36,7 +36,7 @@ export default class PermissionReset extends Command {
       }
     }
 
-    await writePermissionConfig(this.config.configDir, {allowRules: [], rules: []})
-    this.log('All permission rules have been removed.')
+    await writePermissionConfig(this.config.configDir, {allowRules: [{pattern: '*'}], denyRules: []})
+    this.log('Reset to default — all commands allowed.')
   }
 }

@@ -1,6 +1,12 @@
 import {Args, Command} from '@oclif/core'
 
-import {readPermissionConfig, writePermissionConfig} from '../../permission-config.js'
+import {
+  canonicalPattern,
+  isPermissionCommand,
+  matchesPattern,
+  readPermissionConfig,
+  writePermissionConfig,
+} from '../../permission-config.js'
 
 export default class PermissionDisallow extends Command {
   static args = {
@@ -21,17 +27,39 @@ export default class PermissionDisallow extends Command {
     const {args} = await this.parse(PermissionDisallow)
     const {pattern} = args
 
-    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
+    // No config file means everything is currently allowed — preserve that
+    // when creating the file, so disallowing one command doesn't silently
+    // switch the CLI to deny-everything.
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {
+      allowRules: [{pattern: '*'}],
+      denyRules: [],
+    }
 
-    const exists = config.rules.some((r) => r.pattern === pattern)
-    if (exists) {
-      this.log(`Pattern "${pattern}" is already in the disallow list.`)
+    // "jira" and "jira *" match the same commands — treat them as duplicates.
+    const duplicate = config.denyRules.find((r) => canonicalPattern(r.pattern) === canonicalPattern(pattern))
+    if (duplicate) {
+      this.log(
+        duplicate.pattern === pattern
+          ? `Pattern "${pattern}" is already in the disallow list.`
+          : `Pattern "${pattern}" is already covered by "${duplicate.pattern}" in the disallow list.`,
+      )
       return
     }
 
-    config.rules.push({pattern})
+    config.denyRules.push({pattern})
 
     await writePermissionConfig(this.config.configDir, config)
     this.log(`Added disallow rule for "${pattern}".`)
+
+    // A pattern aimed at the permission topic is accepted but has no effect,
+    // since permission commands are exempt from gating — say so up front.
+    if (isPermissionCommand(canonicalPattern(pattern))) {
+      this.log('Note: permission commands are never gated, so this rule will not block them.')
+    }
+
+    const knownIds = (this.config.commands ?? []).map((c) => c.id.replaceAll(':', this.config.topicSeparator ?? ' '))
+    if (knownIds.length > 0 && !knownIds.some((id) => matchesPattern(id, pattern))) {
+      this.warn(`Pattern "${pattern}" does not match any known command — check it for typos.`)
+    }
   }
 }

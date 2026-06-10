@@ -1,6 +1,6 @@
 import {Args, Command} from '@oclif/core'
 
-import {readPermissionConfig, writePermissionConfig} from '../../permission-config.js'
+import {canonicalPattern, matchesPattern, readPermissionConfig, writePermissionConfig} from '../../permission-config.js'
 
 export default class PermissionAllow extends Command {
   static args = {
@@ -21,11 +21,16 @@ export default class PermissionAllow extends Command {
     const {args} = await this.parse(PermissionAllow)
     const {pattern} = args
 
-    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], denyRules: []}
 
-    const exists = config.allowRules.some((r) => r.pattern === pattern)
-    if (exists) {
-      this.log(`Pattern "${pattern}" is already in the allow list.`)
+    // "jira" and "jira *" match the same commands — treat them as duplicates.
+    const duplicate = config.allowRules.find((r) => canonicalPattern(r.pattern) === canonicalPattern(pattern))
+    if (duplicate) {
+      this.log(
+        duplicate.pattern === pattern
+          ? `Pattern "${pattern}" is already in the allow list.`
+          : `Pattern "${pattern}" is already covered by "${duplicate.pattern}" in the allow list.`,
+      )
       return
     }
 
@@ -33,5 +38,10 @@ export default class PermissionAllow extends Command {
 
     await writePermissionConfig(this.config.configDir, config)
     this.log(`Added allow rule for "${pattern}".`)
+
+    const knownIds = (this.config.commands ?? []).map((c) => c.id.replaceAll(':', this.config.topicSeparator ?? ' '))
+    if (knownIds.length > 0 && !knownIds.some((id) => matchesPattern(id, pattern))) {
+      this.warn(`Pattern "${pattern}" does not match any known command — check it for typos.`)
+    }
   }
 }

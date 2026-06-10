@@ -65,49 +65,49 @@ describe('init/apply-permission hook', () => {
   })
 
   it('hides a command that matches a disallow rule', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'mysql'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'mysql'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'mysql query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['mysql query'])
   })
 
   it('hides all commands matching a wildcard disallow rule', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira *'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira *'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'jira project', 'mysql query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['jira issue', 'jira project'])
   })
 
   it('hides all commands when disallow * is the only rule', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: '*'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: '*'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'mysql query', 'help'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['jira issue', 'mysql query', 'help'])
   })
 
   it('commands with no matching rule are left untouched', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'mysql'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'mysql'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'help'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal([])
   })
 
   it('hides colon-separated command IDs (as stored by external plugins)', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira:issue:assign', 'jira:board:list', 'mysql:query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['jira:issue:assign', 'jira:board:list'])
   })
 
   it('colon-separated wildcard disallow hides matching commands', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira *'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira *'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira:issue:assign', 'jira:board:list', 'mysql:query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['jira:issue:assign', 'jira:board:list'])
   })
 
   it('exits when the invoked command is disallowed', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue get', 'mysql query'], 'jira issue get')
     try {
       await hook.call({} as never, opts)
@@ -121,7 +121,7 @@ describe('init/apply-permission hook', () => {
   })
 
   it('exits for colon-separated invoked command id', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira:issue:get', 'mysql:query'], 'jira:issue:get')
     try {
       await hook.call({} as never, opts)
@@ -135,13 +135,13 @@ describe('init/apply-permission hook', () => {
   })
 
   it('does not throw when the invoked command is allowed', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'mysql'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'mysql'}]})
     const {opts} = makeOpts(tmpDir, ['jira issue get', 'mysql query'], 'jira issue get')
     await hook.call({} as never, opts) // should not throw
   })
 
   it('hides topics matching a disallow rule', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira'}]})
     const {opts, topics} = makeOpts(tmpDir, [], undefined, ['jira', 'jira issue', 'mysql'])
     await hook.call({} as never, opts)
     const hiddenTopicIds = [...topics.entries()].filter(([, t]) => t.hidden).map(([id]) => id)
@@ -149,7 +149,7 @@ describe('init/apply-permission hook', () => {
   })
 
   it('blocks `help <target>` when the target is disallowed', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'jira'}]})
     const {opts} = makeOpts(tmpDir, ['jira issue create', 'mysql query'], undefined, ['jira issue', 'mysql'])
     opts.id = 'help'
     opts.argv = ['jira', 'issue', 'create']
@@ -162,28 +162,28 @@ describe('init/apply-permission hook', () => {
   })
 
   it('hides all commands when both rule lists are empty (default deny)', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [], rules: []})
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules: []})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'mysql query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['jira issue', 'mysql query'])
   })
 
   it('hides commands not matching any allow rule when allow list is non-empty', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], rules: []})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: []})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'jira project', 'mysql query'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal(['mysql query'])
   })
 
   it('allows all allow-listed commands when no disallow rules exist', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], rules: []})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: []})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'jira project'])
     await hook.call({} as never, opts)
     expect(hiddenIds(commands)).to.deep.equal([])
   })
 
   it('hides a command that is in the allow list but also matched by a disallow rule', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], rules: [{pattern: 'jira issue'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: [{pattern: 'jira issue'}]})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'jira project', 'mysql query'])
     await hook.call({} as never, opts)
     // jira issue: blocked by disallow; jira project: allowed; mysql query: blocked (not in allow list)
@@ -191,7 +191,7 @@ describe('init/apply-permission hook', () => {
   })
 
   it('exits when the invoked command is not in the allow list', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], rules: []})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: []})
     const {commands, opts} = makeOpts(tmpDir, ['jira issue', 'mysql query'], 'mysql query')
     try {
       await hook.call({} as never, opts)
@@ -205,8 +205,31 @@ describe('init/apply-permission hook', () => {
   })
 
   it('does not exit when the invoked command is in the allow list', async () => {
-    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], rules: []})
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: []})
     const {opts} = makeOpts(tmpDir, ['jira issue', 'mysql query'], 'jira issue')
     await hook.call({} as never, opts) // should not throw
+  })
+
+  it('never hides or blocks permission commands, even when everything is disallowed', async () => {
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules: [{pattern: '*'}]})
+    const {commands, opts, topics} = makeOpts(
+      tmpDir,
+      ['permission:allow', 'permission:list', 'jira issue'],
+      'permission:allow',
+      ['permission', 'jira'],
+    )
+    await hook.call({} as never, opts) // should not throw
+
+    expect(hiddenIds(commands)).to.deep.equal(['jira issue'])
+    const hiddenTopicIds = [...topics.entries()].filter(([, t]) => t.hidden).map(([id]) => id)
+    expect(hiddenTopicIds).to.deep.equal(['jira'])
+  })
+
+  it('ignores a disallow rule that targets the permission topic', async () => {
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: '*'}], denyRules: [{pattern: 'permission *'}]})
+    const {commands, opts} = makeOpts(tmpDir, ['permission:allow', 'jira issue'], 'permission:allow')
+    await hook.call({} as never, opts) // should not throw
+
+    expect(hiddenIds(commands)).to.deep.equal([])
   })
 })

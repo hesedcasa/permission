@@ -2,7 +2,7 @@ import {Args, Command} from '@oclif/core'
 import {writeFile} from 'node:fs/promises'
 import {resolve} from 'node:path'
 
-import {readPermissionConfig} from '../../permission-config.js'
+import {CONFIG_VERSION, readPermissionConfig} from '../../permission-config.js'
 
 export default class PermissionExport extends Command {
   static args = {
@@ -18,8 +18,8 @@ export default class PermissionExport extends Command {
     const {args} = await this.parse(PermissionExport)
     const filePath = resolve(args.file)
 
-    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
-    await writeFile(filePath, JSON.stringify(config, null, 2), 'utf8')
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], denyRules: []}
+    await writeFile(filePath, JSON.stringify({...config, version: CONFIG_VERSION}, null, 2), 'utf8')
     this.log(`Permission configuration exported to "${filePath}".`)
   }
 }

@@ -11,7 +11,10 @@ import {isCommandAllowed, readPermissionConfig} from '../../permission-config.js
  * config file defaults to allowing all commands (allowRules: ["*"]).
  */
 const hook: Hook<'prerun'> = async function ({Command, config}) {
-  const permissionConfig = (await readPermissionConfig(config.configDir)) ?? {allowRules: [{pattern: '*'}], rules: []}
+  const permissionConfig = (await readPermissionConfig(config.configDir)) ?? {
+    allowRules: [{pattern: '*'}],
+    denyRules: [],
+  }
 
   const normalizedId = Command.id.replaceAll(':', config.topicSeparator)
   if (!isCommandAllowed(normalizedId, permissionConfig)) {

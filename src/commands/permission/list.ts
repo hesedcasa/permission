@@ -1,19 +1,25 @@
 import {Command} from '@oclif/core'
 
-import {readPermissionConfig} from '../../permission-config.js'
+import {PermissionConfig, readPermissionConfig} from '../../permission-config.js'
 
 export default class PermissionList extends Command {
   static description = 'List all rules in the permission list'
-  static examples = ['<%= config.bin %> permission list']
+  static enableJsonFlag = true
+  static examples = ['<%= config.bin %> permission list', '<%= config.bin %> permission list --json']
 
-  async run(): Promise<void> {
+  async run(): Promise<{config: null | PermissionConfig}> {
     await this.parse(PermissionList)
-    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
+    const config = await readPermissionConfig(this.config.configDir)
 
-    const total = config.rules.length + config.allowRules.length
+    if (!config) {
+      this.log('No rules configured — all commands allowed (default).')
+      return {config}
+    }
+
+    const total = config.denyRules.length + config.allowRules.length
     if (total === 0) {
-      this.log('No permission rules configured.')
-      return
+      this.log('No rules configured — all commands blocked (default deny; permission commands stay available).')
+      return {config}
     }
 
     this.log(`${total} rule${total === 1 ? '' : 's'}:\n`)
@@ -22,8 +28,10 @@ export default class PermissionList extends Command {
       this.log(`  ✓ allow     ${rule.pattern}`)
     }
 
-    for (const rule of config.rules) {
+    for (const rule of config.denyRules) {
       this.log(`  ✗ disallow  ${rule.pattern}`)
     }
+
+    return {config}
   }
 }

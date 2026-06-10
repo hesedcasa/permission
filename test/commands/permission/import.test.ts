@@ -42,12 +42,12 @@ describe('permission import', () => {
 
     expect(output()).to.contain('Imported 2 rules')
     const saved = (await readPermissionConfig(tmpDir))!
-    expect(saved.rules).to.deep.equal(rules)
+    expect(saved.denyRules).to.deep.equal(rules)
   })
 
   it('imports a single rule with correct singular message', async () => {
     const inFile = join(tmpDir, 'input.json')
-    await writeFile(inFile, JSON.stringify({rules: [{pattern: '*'}]}), 'utf8')
+    await writeFile(inFile, JSON.stringify({allowRules: [], rules: [{pattern: '*'}]}), 'utf8')
 
     const {cmd, output} = makeImport([inFile], tmpDir)
     await cmd.run()
@@ -110,6 +110,17 @@ describe('permission import', () => {
     expect(threw).to.be.true
   })
 
+  it('defaults legacy files without allowRules to allow all commands', async () => {
+    const inFile = join(tmpDir, 'legacy.json')
+    await writeFile(inFile, JSON.stringify({rules: [{pattern: 'mysql'}]}), 'utf8')
+
+    const {cmd} = makeImport([inFile], tmpDir)
+    await cmd.run()
+
+    const saved = (await readPermissionConfig(tmpDir))!
+    expect(saved.allowRules).to.deep.equal([{pattern: '*'}])
+  })
+
   it('throws when allowRules is null', async () => {
     const inFile = join(tmpDir, 'badallowrules.json')
     await writeFile(inFile, JSON.stringify({allowRules: null, rules: []}), 'utf8')
@@ -122,5 +133,48 @@ describe('permission import', () => {
     }
 
     expect(threw).to.be.true
+  })
+
+  it('imports a versioned file with denyRules', async () => {
+    const inFile = join(tmpDir, 'v1.json')
+    await writeFile(
+      inFile,
+      JSON.stringify({allowRules: [{pattern: '*'}], denyRules: [{pattern: 'mysql'}], version: 1}),
+      'utf8',
+    )
+
+    const {cmd, output} = makeImport([inFile], tmpDir)
+    await cmd.run()
+
+    expect(output()).to.contain('Imported 2 rules')
+    const saved = (await readPermissionConfig(tmpDir))!
+    expect(saved.allowRules).to.deep.equal([{pattern: '*'}])
+    expect(saved.denyRules).to.deep.equal([{pattern: 'mysql'}])
+  })
+
+  it('does not apply the legacy allow-all default to versioned files', async () => {
+    const inFile = join(tmpDir, 'v1-noallow.json')
+    await writeFile(inFile, JSON.stringify({denyRules: [], version: 1}), 'utf8')
+
+    const {cmd} = makeImport([inFile], tmpDir)
+    await cmd.run()
+
+    const saved = (await readPermissionConfig(tmpDir))!
+    expect(saved.allowRules).to.deep.equal([])
+  })
+
+  it('throws when the file version is newer than supported', async () => {
+    const inFile = join(tmpDir, 'future.json')
+    await writeFile(inFile, JSON.stringify({allowRules: [], denyRules: [], version: 99}), 'utf8')
+
+    const {cmd} = makeImport([inFile], tmpDir)
+    let error: Error | undefined
+    try {
+      await cmd.run()
+    } catch (error_) {
+      error = error_ as Error
+    }
+
+    expect(error?.message).to.contain('version 99')
   })
 })
