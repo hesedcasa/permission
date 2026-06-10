@@ -42,7 +42,7 @@ export default class PermissionCheck extends Command {
     if (decision.reason === 'disallow-rule') {
       this.log(`✗ "${commandId}" is blocked by disallow rule "${decision.pattern}".`)
     } else {
-      this.log(`✗ "${commandId}" is blocked — no allow rule matches it.`)
+      this.log(`✗ "${commandId}" is blocked — no allow rule matches it (default deny).`)
     }
 
     this.exit(1)

@@ -31,7 +31,7 @@ interface StoredPermissionConfig {
   version?: number
 }
 
-export function permissionConfigPath(configDir: string): string {
+function permissionConfigPath(configDir: string): string {
   return join(configDir, 'permission.json')
 }
 
