@@ -1,6 +1,6 @@
 import {Errors} from '@oclif/core'
 import {expect} from 'chai'
-import {mkdtemp, rm} from 'node:fs/promises'
+import {mkdtemp, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 
@@ -112,6 +112,17 @@ describe('prerun/check-permission hook', () => {
       expect.fail('should have thrown')
     } catch (error: unknown) {
       expect(error).to.be.instanceOf(Errors.CLIError)
+    }
+  })
+
+  it('throws (instead of allowing everything) when the config file is corrupted', async () => {
+    await writeFile(join(tmpDir, 'permission.json'), '{not valid json', 'utf8')
+    const opts = makeOpts(tmpDir, 'jira issue')
+    try {
+      await hook.call({} as never, opts)
+      expect.fail('should have thrown')
+    } catch (error: unknown) {
+      expect((error as Error).message).to.contain('not valid JSON')
     }
   })
 

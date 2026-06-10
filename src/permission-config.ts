@@ -23,17 +23,29 @@ function configFilePath(configDir: string): string {
  *     remains usable before any rules are configured.
  *   - Commands treat it as an empty config ({allowRules: [], rules: []}) so
  *     they can create the initial rules file from scratch.
+ *
+ * Any other failure (malformed JSON, unreadable file) throws, so a corrupted
+ * config never silently falls back to the allow-all default.
  */
 export async function readPermissionConfig(configDir: string | undefined): Promise<null | PermissionConfig> {
   if (!configDir) return null
   const filePath = configFilePath(configDir)
+  let content: string
   try {
-    const content = await readFile(filePath, 'utf8')
-    const parsed = JSON.parse(content) as Partial<PermissionConfig>
-    return {allowRules: parsed.allowRules ?? [], rules: parsed.rules ?? []}
-  } catch {
-    return null
+    content = await readFile(filePath, 'utf8')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+    throw error
   }
+
+  let parsed: Partial<PermissionConfig>
+  try {
+    parsed = JSON.parse(content) as Partial<PermissionConfig>
+  } catch (error) {
+    throw new Error(`Permission config at ${filePath} is not valid JSON: ${(error as Error).message}`)
+  }
+
+  return {allowRules: parsed.allowRules ?? [], rules: parsed.rules ?? []}
 }
 
 export async function writePermissionConfig(configDir: string, config: PermissionConfig): Promise<void> {
