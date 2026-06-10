@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0](https://github.com/hesedcasa/permission/compare/v0.2.0...v0.3.0) (2026-06-10)
+
+
+### 🎉 Features
+
+* add check and remove commands, refine allow-list semantics ([6f6d56e](https://github.com/hesedcasa/permission/commit/6f6d56ebaed58d3dc1f386640245bec8bd6ba96c))
+* add permission allow command with allow-list and default-deny semantics ([62f7744](https://github.com/hesedcasa/permission/commit/62f77447db790cf3c1fa395912cdb02a978ebd97))
+* add permission allow command with disallow-takes-precedence semantics ([1d9381f](https://github.com/hesedcasa/permission/commit/1d9381f09b3068739c416f1f006d55a95949c1bb))
+* ship allow-list with default-deny semantics and null config for missing file ([7f35297](https://github.com/hesedcasa/permission/commit/7f35297c9c6f6c9d6d393a7dd91852479fff8dfe))
+
+
+### 🛠️ Fixes
+
+* throw on corrupted permission config instead of treating it as missing ([9249454](https://github.com/hesedcasa/permission/commit/9249454e8d0dcbab75205629b4b2b2f8ddd8612c))
+
 ## [0.2.0](https://github.com/hesedcasa/permission/compare/v0.1.1...v0.2.0) (2026-06-03)
 
 
