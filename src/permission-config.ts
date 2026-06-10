@@ -20,7 +20,8 @@ function configFilePath(configDir: string): string {
  * not exist (plugin not yet configured). Callers decide how to handle the
  * absent-config case:
  *   - Hooks default to allowing all commands (allowRules: ["*"]) so the CLI
- *     remains usable before any rules are configured.
+ *     remains usable before any rules are configured. Configs written before
+ *     allowRules existed also default to ["*"] for upgrade compatibility.
  *   - Commands treat it as an empty config ({allowRules: [], rules: []}) so
  *     they can create the initial rules file from scratch.
  *
@@ -45,7 +46,8 @@ export async function readPermissionConfig(configDir: string | undefined): Promi
     throw new Error(`Permission config at ${filePath} is not valid JSON: ${(error as Error).message}`)
   }
 
-  return {allowRules: parsed.allowRules ?? [], rules: parsed.rules ?? []}
+  const allowRules = parsed.allowRules === undefined ? [{pattern: '*'}] : (parsed.allowRules ?? [])
+  return {allowRules, rules: parsed.rules ?? []}
 }
 
 export async function writePermissionConfig(configDir: string, config: PermissionConfig): Promise<void> {
