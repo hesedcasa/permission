@@ -42,11 +42,11 @@ export default class PermissionImport extends Command {
       }
     }
 
-    const allowRules = parsed.allowRules ?? []
-    if (!Array.isArray(allowRules)) {
+    if (parsed.allowRules !== undefined && !Array.isArray(parsed.allowRules)) {
       this.error(`File "${filePath}" is not a valid permission configuration ("allowRules" must be an array).`)
     }
 
+    const allowRules = parsed.allowRules ?? []
     for (const [i, rule] of allowRules.entries()) {
       if (typeof rule.pattern !== 'string') {
         this.error(`Allow rule at index ${i} is invalid. Each rule must have a string "pattern".`)

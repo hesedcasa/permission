@@ -109,4 +109,18 @@ describe('permission import', () => {
 
     expect(threw).to.be.true
   })
+
+  it('throws when allowRules is null', async () => {
+    const inFile = join(tmpDir, 'badallowrules.json')
+    await writeFile(inFile, JSON.stringify({allowRules: null, rules: []}), 'utf8')
+    const {cmd} = makeImport([inFile], tmpDir)
+    let threw = false
+    try {
+      await cmd.run()
+    } catch {
+      threw = true
+    }
+
+    expect(threw).to.be.true
+  })
 })
