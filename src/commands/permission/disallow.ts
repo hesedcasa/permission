@@ -21,7 +21,7 @@ export default class PermissionDisallow extends Command {
     const {args} = await this.parse(PermissionDisallow)
     const {pattern} = args
 
-    const config = await readPermissionConfig(this.config.configDir)
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
 
     const exists = config.rules.some((r) => r.pattern === pattern)
     if (exists) {

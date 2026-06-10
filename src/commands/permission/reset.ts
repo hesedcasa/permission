@@ -16,7 +16,7 @@ export default class PermissionReset extends Command {
   async run(): Promise<void> {
     const {flags} = await this.parse(PermissionReset)
 
-    const config = await readPermissionConfig(this.config.configDir)
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
     if (config.rules.length === 0 && config.allowRules.length === 0) {
       this.log('No permission rules to reset.')
       return

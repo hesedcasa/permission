@@ -49,7 +49,7 @@ describe('permission reset', () => {
     await cmd.run()
 
     expect(output()).to.contain('All permission rules have been removed.')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.deep.equal([])
   })
 })

@@ -10,12 +10,14 @@ import {isCommandAllowed, readPermissionConfig} from '../../permission-config.js
  * Throwing here covers both normal runs and --help, since oclif checks for
  * --help after the init hook returns.
  *
- * Rule evaluation: first matching rule wins. Commands with no matching rule are
- * allowed by default.
+ * Default deny: commands must match an allow rule to be visible. A missing
+ * config file defaults to allowing all commands (allowRules: ["*"]).
  */
 const hook: Hook<'init'> = async function (opts) {
-  const permissionConfig = await readPermissionConfig(opts.config.configDir)
-  if (permissionConfig.rules.length === 0 && permissionConfig.allowRules.length === 0) return
+  const permissionConfig = (await readPermissionConfig(opts.config.configDir)) ?? {
+    allowRules: [{pattern: '*'}],
+    rules: [],
+  }
 
   const internalCommands = (opts.config as unknown as {_commands: Map<string, {hidden: boolean}>})._commands
   const internalTopics = (opts.config as unknown as {_topics: Map<string, {hidden: boolean}>})._topics

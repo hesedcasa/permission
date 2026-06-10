@@ -37,7 +37,7 @@ describe('permission disallow', () => {
     await cmd.run()
 
     expect(output()).to.contain('Added disallow rule for "jira".')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.deep.equal([{pattern: 'jira'}])
   })
 
@@ -45,7 +45,7 @@ describe('permission disallow', () => {
     const {cmd} = makeDisallow(['jira *'], tmpDir)
     await cmd.run()
 
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.deep.equal([{pattern: 'jira *'}])
   })
 
@@ -55,7 +55,7 @@ describe('permission disallow', () => {
     await cmd.run()
 
     expect(output()).to.contain('already in the disallow list')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.have.length(1)
   })
 
@@ -64,7 +64,7 @@ describe('permission disallow', () => {
     const {cmd} = makeDisallow(['jira'], tmpDir)
     await cmd.run()
 
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.have.length(2)
   })
 })

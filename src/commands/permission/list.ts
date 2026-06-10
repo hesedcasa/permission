@@ -8,7 +8,7 @@ export default class PermissionList extends Command {
 
   async run(): Promise<void> {
     await this.parse(PermissionList)
-    const config = await readPermissionConfig(this.config.configDir)
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
 
     const total = config.rules.length + config.allowRules.length
     if (total === 0) {

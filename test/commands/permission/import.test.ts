@@ -41,7 +41,7 @@ describe('permission import', () => {
     await cmd.run()
 
     expect(output()).to.contain('Imported 2 rules')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.deep.equal(rules)
   })
 

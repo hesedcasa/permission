@@ -37,7 +37,7 @@ describe('permission allow', () => {
     await cmd.run()
 
     expect(output()).to.contain('Added allow rule for "jira".')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.allowRules).to.deep.equal([{pattern: 'jira'}])
     expect(saved.rules).to.deep.equal([])
   })
@@ -46,7 +46,7 @@ describe('permission allow', () => {
     const {cmd} = makeAllow(['jira *'], tmpDir)
     await cmd.run()
 
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.allowRules).to.deep.equal([{pattern: 'jira *'}])
   })
 
@@ -56,7 +56,7 @@ describe('permission allow', () => {
     await cmd.run()
 
     expect(output()).to.contain('already in the allow list')
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.allowRules).to.have.length(1)
   })
 
@@ -65,7 +65,7 @@ describe('permission allow', () => {
     const {cmd} = makeAllow(['jira'], tmpDir)
     await cmd.run()
 
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.allowRules).to.have.length(2)
   })
 
@@ -74,7 +74,7 @@ describe('permission allow', () => {
     const {cmd} = makeAllow(['jira'], tmpDir)
     await cmd.run()
 
-    const saved = await readPermissionConfig(tmpDir)
+    const saved = (await readPermissionConfig(tmpDir))!
     expect(saved.rules).to.deep.equal([{pattern: 'mysql'}])
     expect(saved.allowRules).to.deep.equal([{pattern: 'jira'}])
   })

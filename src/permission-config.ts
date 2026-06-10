@@ -15,15 +15,24 @@ function configFilePath(configDir: string): string {
   return join(configDir, 'permission.json')
 }
 
-export async function readPermissionConfig(configDir: string | undefined): Promise<PermissionConfig> {
-  if (!configDir) return {allowRules: [], rules: []}
+/**
+ * Reads the permission config from disk. Returns null when the config file does
+ * not exist (plugin not yet configured). Callers decide how to handle the
+ * absent-config case:
+ *   - Hooks default to allowing all commands (allowRules: ["*"]) so the CLI
+ *     remains usable before any rules are configured.
+ *   - Commands treat it as an empty config ({allowRules: [], rules: []}) so
+ *     they can create the initial rules file from scratch.
+ */
+export async function readPermissionConfig(configDir: string | undefined): Promise<null | PermissionConfig> {
+  if (!configDir) return null
   const filePath = configFilePath(configDir)
   try {
     const content = await readFile(filePath, 'utf8')
     const parsed = JSON.parse(content) as Partial<PermissionConfig>
     return {allowRules: parsed.allowRules ?? [], rules: parsed.rules ?? []}
   } catch {
-    return {allowRules: [], rules: []}
+    return null
   }
 }
 
@@ -74,11 +83,12 @@ export function matchesPattern(commandId: string, pattern: string): boolean {
  *
  * Evaluation order:
  *   1. If any disallow rule matches → blocked (disallow always wins).
- *   2. If an allow list exists (non-empty) → allowed only when matched.
- *   3. No rules → allowed by default.
+ *   2. Command must match at least one allow rule (empty allow list = block all).
+ *
+ * Default deny: a command is allowed only when explicitly permitted by an
+ * allow rule. Use allowRules: [{pattern: "*"}] to permit everything.
  */
 export function isCommandAllowed(commandId: string, config: PermissionConfig): boolean {
   if (config.rules.some((rule) => matchesPattern(commandId, rule.pattern))) return false
-  if (config.allowRules.length > 0) return config.allowRules.some((rule) => matchesPattern(commandId, rule.pattern))
-  return true
+  return config.allowRules.some((rule) => matchesPattern(commandId, rule.pattern))
 }

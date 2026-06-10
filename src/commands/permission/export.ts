@@ -18,7 +18,7 @@ export default class PermissionExport extends Command {
     const {args} = await this.parse(PermissionExport)
     const filePath = resolve(args.file)
 
-    const config = await readPermissionConfig(this.config.configDir)
+    const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], rules: []}
     await writeFile(filePath, JSON.stringify(config, null, 2), 'utf8')
     this.log(`Permission configuration exported to "${filePath}".`)
   }
