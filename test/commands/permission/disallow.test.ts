@@ -50,7 +50,7 @@ describe('permission disallow', () => {
   })
 
   it('does not duplicate an existing disallow rule', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: 'jira'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], rules: [{pattern: 'jira'}]})
     const {cmd, output} = makeDisallow(['jira'], tmpDir)
     await cmd.run()
 
@@ -60,7 +60,7 @@ describe('permission disallow', () => {
   })
 
   it('preserves unrelated rules when adding a new one', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: 'mysql'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], rules: [{pattern: 'mysql'}]})
     const {cmd} = makeDisallow(['jira'], tmpDir)
     await cmd.run()
 

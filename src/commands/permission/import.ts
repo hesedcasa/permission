@@ -25,24 +25,38 @@ export default class PermissionImport extends Command {
       this.error(`Could not read file "${filePath}". Make sure the file exists and is readable.`)
     }
 
-    let config: PermissionConfig
+    let parsed: Partial<PermissionConfig>
     try {
-      config = JSON.parse(raw) as PermissionConfig
+      parsed = JSON.parse(raw) as Partial<PermissionConfig>
     } catch {
       this.error(`File "${filePath}" does not contain valid JSON.`)
     }
 
-    if (!Array.isArray(config.rules)) {
+    if (!Array.isArray(parsed.rules)) {
       this.error(`File "${filePath}" is not a valid permission configuration (missing "rules" array).`)
     }
 
-    for (const [i, rule] of config.rules.entries()) {
+    for (const [i, rule] of parsed.rules.entries()) {
       if (typeof rule.pattern !== 'string') {
-        this.error(`Rule at index ${i} is invalid. Each rule must have a string "pattern".`)
+        this.error(`Disallow rule at index ${i} is invalid. Each rule must have a string "pattern".`)
       }
     }
 
+    const allowRules = parsed.allowRules ?? []
+    if (!Array.isArray(allowRules)) {
+      this.error(`File "${filePath}" is not a valid permission configuration ("allowRules" must be an array).`)
+    }
+
+    for (const [i, rule] of allowRules.entries()) {
+      if (typeof rule.pattern !== 'string') {
+        this.error(`Allow rule at index ${i} is invalid. Each rule must have a string "pattern".`)
+      }
+    }
+
+    const config: PermissionConfig = {allowRules, rules: parsed.rules}
     await writePermissionConfig(this.config.configDir, config)
-    this.log(`Imported ${config.rules.length} rule${config.rules.length === 1 ? '' : 's'} from "${filePath}".`)
+
+    const total = config.rules.length + config.allowRules.length
+    this.log(`Imported ${total} rule${total === 1 ? '' : 's'} from "${filePath}".`)
   }
 }

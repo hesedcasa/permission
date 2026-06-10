@@ -40,7 +40,7 @@ describe('permission list', () => {
   })
 
   it('lists disallow rules', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: 'mysql *'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], rules: [{pattern: 'mysql *'}]})
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
 
@@ -50,6 +50,7 @@ describe('permission list', () => {
 
   it('shows the rule count', async () => {
     await writePermissionConfig(tmpDir, {
+      allowRules: [],
       rules: [{pattern: 'jira'}, {pattern: 'mysql'}],
     })
     const {cmd, output} = makeList(tmpDir)
@@ -59,7 +60,7 @@ describe('permission list', () => {
   })
 
   it('shows singular "rule" for a single entry', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: '*'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], rules: [{pattern: '*'}]})
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
 

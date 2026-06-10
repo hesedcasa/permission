@@ -39,12 +39,12 @@ describe('permission export', () => {
 
     expect(output()).to.contain('exported to')
     const content = JSON.parse(await readFile(outFile, 'utf8'))
-    expect(content).to.deep.equal({rules: []})
+    expect(content).to.deep.equal({allowRules: [], rules: []})
   })
 
   it('exports existing rules to a JSON file', async () => {
     const rules = [{pattern: 'jira'}, {pattern: 'mysql *'}]
-    await writePermissionConfig(tmpDir, {rules})
+    await writePermissionConfig(tmpDir, {allowRules: [], rules})
 
     const outFile = join(tmpDir, 'out.json')
     const {cmd} = makeExport([outFile], tmpDir)

@@ -15,7 +15,7 @@ import {isCommandAllowed, readPermissionConfig} from '../../permission-config.js
  */
 const hook: Hook<'init'> = async function (opts) {
   const permissionConfig = await readPermissionConfig(opts.config.configDir)
-  if (permissionConfig.rules.length === 0) return
+  if (permissionConfig.rules.length === 0 && permissionConfig.allowRules.length === 0) return
 
   const internalCommands = (opts.config as unknown as {_commands: Map<string, {hidden: boolean}>})._commands
   const internalTopics = (opts.config as unknown as {_topics: Map<string, {hidden: boolean}>})._topics

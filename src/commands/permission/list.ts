@@ -10,12 +10,17 @@ export default class PermissionList extends Command {
     await this.parse(PermissionList)
     const config = await readPermissionConfig(this.config.configDir)
 
-    if (config.rules.length === 0) {
+    const total = config.rules.length + config.allowRules.length
+    if (total === 0) {
       this.log('No permission rules configured.')
       return
     }
 
-    this.log(`${config.rules.length} rule${config.rules.length === 1 ? '' : 's'}:\n`)
+    this.log(`${total} rule${total === 1 ? '' : 's'}:\n`)
+
+    for (const rule of config.allowRules) {
+      this.log(`  ✓ allow     ${rule.pattern}`)
+    }
 
     for (const rule of config.rules) {
       this.log(`  ✗ disallow  ${rule.pattern}`)

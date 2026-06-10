@@ -7,6 +7,7 @@ interface PermissionRule {
 }
 
 export interface PermissionConfig {
+  allowRules: PermissionRule[]
   rules: PermissionRule[]
 }
 
@@ -15,13 +16,14 @@ function configFilePath(configDir: string): string {
 }
 
 export async function readPermissionConfig(configDir: string | undefined): Promise<PermissionConfig> {
-  if (!configDir) return {rules: []}
+  if (!configDir) return {allowRules: [], rules: []}
   const filePath = configFilePath(configDir)
   try {
     const content = await readFile(filePath, 'utf8')
-    return JSON.parse(content) as PermissionConfig
+    const parsed = JSON.parse(content) as Partial<PermissionConfig>
+    return {allowRules: parsed.allowRules ?? [], rules: parsed.rules ?? []}
   } catch {
-    return {rules: []}
+    return {allowRules: [], rules: []}
   }
 }
 
@@ -69,8 +71,14 @@ export function matchesPattern(commandId: string, pattern: string): boolean {
 
 /**
  * Returns true if a command id is allowed by the given permission config.
- * A command is blocked if any rule pattern matches it. Unmatched commands are allowed.
+ *
+ * Evaluation order:
+ *   1. If any disallow rule matches → blocked (disallow always wins).
+ *   2. If an allow list exists (non-empty) → allowed only when matched.
+ *   3. No rules → allowed by default.
  */
 export function isCommandAllowed(commandId: string, config: PermissionConfig): boolean {
-  return !config.rules.some((rule) => matchesPattern(commandId, rule.pattern))
+  if (config.rules.some((rule) => matchesPattern(commandId, rule.pattern))) return false
+  if (config.allowRules.length > 0) return config.allowRules.some((rule) => matchesPattern(commandId, rule.pattern))
+  return true
 }
