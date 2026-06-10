@@ -20,7 +20,7 @@ $ npm install -g @hesed/permission
 $ permission COMMAND
 running command...
 $ permission (--version)
-@hesed/permission/0.2.0 linux-x64 node-v22.22.3
+@hesed/permission/0.2.0 darwin-arm64 node-v22.14.0
 $ permission --help [COMMAND]
 USAGE
   $ permission COMMAND
@@ -31,11 +31,64 @@ USAGE
 # Commands
 
 <!-- commands -->
+* [`permission permission allow PATTERN`](#permission-permission-allow-pattern)
+* [`permission permission check COMMAND`](#permission-permission-check-command)
 * [`permission permission disallow PATTERN`](#permission-permission-disallow-pattern)
 * [`permission permission export FILE`](#permission-permission-export-file)
 * [`permission permission import FILE`](#permission-permission-import-file)
 * [`permission permission list`](#permission-permission-list)
+* [`permission permission remove PATTERN`](#permission-permission-remove-pattern)
 * [`permission permission reset`](#permission-permission-reset)
+
+## `permission permission allow PATTERN`
+
+Allow a command pattern in the permission list
+
+```
+USAGE
+  $ permission permission allow PATTERN
+
+ARGUMENTS
+  PATTERN  Command pattern to allow.
+
+DESCRIPTION
+  Allow a command pattern in the permission list
+
+EXAMPLES
+  $ permission permission allow "*"
+
+  $ permission permission allow jira
+
+  $ permission permission allow "jira *"
+
+  $ permission permission allow "jira issue create"
+```
+
+_See code: [src/commands/permission/allow.ts](https://github.com/hesedcasa/permission/blob/v0.2.0/src/commands/permission/allow.ts)_
+
+## `permission permission check COMMAND`
+
+Check whether a command is allowed and which rule decides it
+
+```
+USAGE
+  $ permission permission check COMMAND...
+
+ARGUMENTS
+  COMMAND...  Command to check, e.g. "jira issue create"
+
+DESCRIPTION
+  Check whether a command is allowed and which rule decides it
+
+EXAMPLES
+  $ permission permission check jira
+
+  $ permission permission check "jira issue create"
+
+  $ permission permission check jira issue create
+```
+
+_See code: [src/commands/permission/check.ts](https://github.com/hesedcasa/permission/blob/v0.2.0/src/commands/permission/check.ts)_
 
 ## `permission permission disallow PATTERN`
 
@@ -109,16 +162,51 @@ List all rules in the permission list
 
 ```
 USAGE
-  $ permission permission list
+  $ permission permission list [--json]
+
+GLOBAL FLAGS
+  --json  Format output as json.
 
 DESCRIPTION
   List all rules in the permission list
 
 EXAMPLES
   $ permission permission list
+
+  $ permission permission list --json
 ```
 
 _See code: [src/commands/permission/list.ts](https://github.com/hesedcasa/permission/blob/v0.2.0/src/commands/permission/list.ts)_
+
+## `permission permission remove PATTERN`
+
+Remove a rule from the permission list
+
+```
+USAGE
+  $ permission permission remove PATTERN [--allow] [--disallow]
+
+ARGUMENTS
+  PATTERN  Pattern to remove from the permission list.
+
+FLAGS
+  --allow     Only remove the pattern from the allow list
+  --disallow  Only remove the pattern from the disallow list
+
+DESCRIPTION
+  Remove a rule from the permission list
+
+EXAMPLES
+  $ permission permission remove jira
+
+  $ permission permission remove "jira *"
+
+  $ permission permission remove jira --allow
+
+  $ permission permission remove jira --disallow
+```
+
+_See code: [src/commands/permission/remove.ts](https://github.com/hesedcasa/permission/blob/v0.2.0/src/commands/permission/remove.ts)_
 
 ## `permission permission reset`
 

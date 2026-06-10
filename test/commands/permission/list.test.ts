@@ -32,15 +32,31 @@ describe('permission list', () => {
     await rm(tmpDir, {recursive: true})
   })
 
-  it('reports no rules when config is empty', async () => {
+  it('reports allow-all default when no config file exists', async () => {
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
 
-    expect(output()).to.contain('No permission rules configured.')
+    expect(output()).to.contain('No rules configured — all commands allowed (default).')
+  })
+
+  it('reports default deny when the config exists but has no rules', async () => {
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules: []})
+    const {cmd, output} = makeList(tmpDir)
+    await cmd.run()
+
+    expect(output()).to.contain('all commands blocked (default deny')
+  })
+
+  it('returns the config for --json consumers', async () => {
+    await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: [{pattern: 'mysql'}]})
+    const {cmd} = makeList(tmpDir)
+    const result = await cmd.run()
+
+    expect(result.config).to.deep.equal({allowRules: [{pattern: 'jira'}], denyRules: [{pattern: 'mysql'}]})
   })
 
   it('lists disallow rules', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: 'mysql *'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules: [{pattern: 'mysql *'}]})
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
 
@@ -50,7 +66,8 @@ describe('permission list', () => {
 
   it('shows the rule count', async () => {
     await writePermissionConfig(tmpDir, {
-      rules: [{pattern: 'jira'}, {pattern: 'mysql'}],
+      allowRules: [],
+      denyRules: [{pattern: 'jira'}, {pattern: 'mysql'}],
     })
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
@@ -59,7 +76,7 @@ describe('permission list', () => {
   })
 
   it('shows singular "rule" for a single entry', async () => {
-    await writePermissionConfig(tmpDir, {rules: [{pattern: '*'}]})
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules: [{pattern: '*'}]})
     const {cmd, output} = makeList(tmpDir)
     await cmd.run()
 

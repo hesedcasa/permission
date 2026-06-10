@@ -41,14 +41,16 @@ describe('permission reset', () => {
 
   it('clears all rules when --confirm is passed', async () => {
     await writePermissionConfig(tmpDir, {
-      rules: [{pattern: 'jira'}, {pattern: 'mysql'}],
+      allowRules: [],
+      denyRules: [{pattern: 'jira'}, {pattern: 'mysql'}],
     })
 
     const {cmd, output} = makeReset(['--confirm'], tmpDir)
     await cmd.run()
 
-    expect(output()).to.contain('All permission rules have been removed.')
-    const saved = await readPermissionConfig(tmpDir)
-    expect(saved.rules).to.deep.equal([])
+    expect(output()).to.contain('Reset to default — all commands allowed.')
+    const saved = (await readPermissionConfig(tmpDir))!
+    expect(saved.denyRules).to.deep.equal([])
+    expect(saved.allowRules).to.deep.equal([{pattern: '*'}])
   })
 })

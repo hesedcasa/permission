@@ -2,7 +2,16 @@ import {Args, Command} from '@oclif/core'
 import {readFile} from 'node:fs/promises'
 import {resolve} from 'node:path'
 
-import {PermissionConfig, writePermissionConfig} from '../../permission-config.js'
+import {CONFIG_VERSION, PermissionConfig, writePermissionConfig} from '../../permission-config.js'
+
+/** Accepted file shape across all supported schema versions. */
+interface ImportedConfig {
+  allowRules?: Array<{pattern: string}> | null
+  denyRules?: Array<{pattern: string}>
+  /** Pre-versioning name for denyRules. */
+  rules?: Array<{pattern: string}>
+  version?: number
+}
 
 export default class PermissionImport extends Command {
   static args = {
@@ -25,24 +34,50 @@ export default class PermissionImport extends Command {
       this.error(`Could not read file "${filePath}". Make sure the file exists and is readable.`)
     }
 
-    let config: PermissionConfig
+    let parsed: ImportedConfig
     try {
-      config = JSON.parse(raw) as PermissionConfig
+      parsed = JSON.parse(raw) as ImportedConfig
     } catch {
       this.error(`File "${filePath}" does not contain valid JSON.`)
     }
 
-    if (!Array.isArray(config.rules)) {
-      this.error(`File "${filePath}" is not a valid permission configuration (missing "rules" array).`)
+    if (parsed.version !== undefined && parsed.version > CONFIG_VERSION) {
+      this.error(
+        `File "${filePath}" has config version ${parsed.version}, but this plugin only supports up to version ${CONFIG_VERSION}. Update the plugin.`,
+      )
     }
 
-    for (const [i, rule] of config.rules.entries()) {
+    // "rules" is the pre-versioning name for denyRules.
+    const denyRules = parsed.denyRules ?? parsed.rules
+    if (!Array.isArray(denyRules)) {
+      this.error(`File "${filePath}" is not a valid permission configuration (missing "denyRules" array).`)
+    }
+
+    for (const [i, rule] of denyRules.entries()) {
       if (typeof rule.pattern !== 'string') {
-        this.error(`Rule at index ${i} is invalid. Each rule must have a string "pattern".`)
+        this.error(`Disallow rule at index ${i} is invalid. Each rule must have a string "pattern".`)
       }
     }
 
+    if (parsed.allowRules !== undefined && !Array.isArray(parsed.allowRules)) {
+      this.error(`File "${filePath}" is not a valid permission configuration ("allowRules" must be an array).`)
+    }
+
+    // Mirror readPermissionConfig's legacy handling: an unversioned file
+    // without allowRules predates the allow list and means "allow everything".
+    const allowRules = parsed.allowRules ?? (parsed.version === undefined ? [{pattern: '*'}] : [])
+    for (const [i, rule] of allowRules.entries()) {
+      if (typeof rule.pattern !== 'string') {
+        this.error(`Allow rule at index ${i} is invalid. Each rule must have a string "pattern".`)
+      }
+    }
+
+    const config: PermissionConfig = {allowRules, denyRules}
     await writePermissionConfig(this.config.configDir, config)
-    this.log(`Imported ${config.rules.length} rule${config.rules.length === 1 ? '' : 's'} from "${filePath}".`)
+
+    // Count only rules that came from the file, not the synthesized legacy
+    // allow-all rule.
+    const total = denyRules.length + (parsed.allowRules?.length ?? 0)
+    this.log(`Imported ${total} rule${total === 1 ? '' : 's'} from "${filePath}".`)
   }
 }

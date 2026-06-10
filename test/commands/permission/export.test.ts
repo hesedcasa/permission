@@ -39,18 +39,19 @@ describe('permission export', () => {
 
     expect(output()).to.contain('exported to')
     const content = JSON.parse(await readFile(outFile, 'utf8'))
-    expect(content).to.deep.equal({rules: []})
+    expect(content).to.deep.equal({allowRules: [], denyRules: [], version: 1})
   })
 
   it('exports existing rules to a JSON file', async () => {
-    const rules = [{pattern: 'jira'}, {pattern: 'mysql *'}]
-    await writePermissionConfig(tmpDir, {rules})
+    const denyRules = [{pattern: 'jira'}, {pattern: 'mysql *'}]
+    await writePermissionConfig(tmpDir, {allowRules: [], denyRules})
 
     const outFile = join(tmpDir, 'out.json')
     const {cmd} = makeExport([outFile], tmpDir)
     await cmd.run()
 
     const content = JSON.parse(await readFile(outFile, 'utf8'))
-    expect(content.rules).to.deep.equal(rules)
+    expect(content.denyRules).to.deep.equal(denyRules)
+    expect(content.version).to.equal(1)
   })
 })
