@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 import {mkdtemp, rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import PermissionList from '../../../src/commands/permission/list.js'
 import {writePermissionConfig} from '../../../src/permission-config.js'
@@ -25,7 +25,7 @@ describe('permission list', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {

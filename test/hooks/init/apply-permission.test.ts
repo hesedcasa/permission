@@ -2,7 +2,7 @@ import {Errors} from '@oclif/core'
 import {expect} from 'chai'
 import {mkdtemp, rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import hook from '../../../src/hooks/init/apply-permission.js'
 import {writePermissionConfig} from '../../../src/permission-config.js'
@@ -14,7 +14,7 @@ function makeCommands(ids: string[]): Map<string, {hidden: boolean; id: string}>
 }
 
 function hiddenIds(commands: Map<string, {hidden: boolean; id: string}>): string[] {
-  return [...commands.entries()].filter(([, c]) => c.hidden).map(([id]) => id)
+  return [...commands].filter(([, c]) => c.hidden).map(([id]) => id)
 }
 
 function makeTopics(ids: string[]): Map<string, {hidden: boolean; name: string}> {
@@ -51,7 +51,7 @@ describe('init/apply-permission hook', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {

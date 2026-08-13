@@ -9,6 +9,7 @@ export default class PermissionRemove extends Command {
       required: true,
     }),
   }
+
   static description = 'Remove a rule from the permission list'
   static examples = [
     '<%= config.bin %> permission remove jira',
@@ -16,6 +17,7 @@ export default class PermissionRemove extends Command {
     '<%= config.bin %> permission remove jira --allow',
     '<%= config.bin %> permission remove jira --disallow',
   ]
+
   static flags = {
     allow: Flags.boolean({
       description: 'Only remove the pattern from the allow list',
@@ -32,27 +34,37 @@ export default class PermissionRemove extends Command {
     const config = (await readPermissionConfig(this.config.configDir)) ?? {allowRules: [], denyRules: []}
 
     // With no scope flag the pattern is removed from both lists.
-    const fromAllow = flags.allow || !flags.disallow
-    const fromDisallow = flags.disallow || !flags.allow
+    const isFromAllow = flags.allow || !flags.disallow
+    const isFromDisallow = flags.disallow || !flags.allow
 
     // "jira" and "jira *" match the same commands — remove either form.
     const matches = (r: {pattern: string}) => canonicalPattern(r.pattern) === canonicalPattern(pattern)
     const removed: string[] = []
 
-    if (fromAllow) {
-      for (const rule of config.allowRules.filter((r) => matches(r))) {
-        removed.push(`Removed allow rule "${rule.pattern}".`)
+    if (isFromAllow) {
+      const kept: Array<{pattern: string}> = []
+      for (const rule of config.allowRules) {
+        if (matches(rule)) {
+          removed.push(`Removed allow rule "${rule.pattern}".`)
+        } else {
+          kept.push(rule)
+        }
       }
 
-      config.allowRules = config.allowRules.filter((r) => !matches(r))
+      config.allowRules = kept
     }
 
-    if (fromDisallow) {
-      for (const rule of config.denyRules.filter((r) => matches(r))) {
-        removed.push(`Removed disallow rule "${rule.pattern}".`)
+    if (isFromDisallow) {
+      const kept: Array<{pattern: string}> = []
+      for (const rule of config.denyRules) {
+        if (matches(rule)) {
+          removed.push(`Removed disallow rule "${rule.pattern}".`)
+        } else {
+          kept.push(rule)
+        }
       }
 
-      config.denyRules = config.denyRules.filter((r) => !matches(r))
+      config.denyRules = kept
     }
 
     if (removed.length === 0) {

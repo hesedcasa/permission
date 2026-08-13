@@ -1,4 +1,4 @@
-import {Errors, Hook} from '@oclif/core'
+import {Errors, type Hook} from '@oclif/core'
 
 import {isCommandAllowed, readPermissionConfig} from '../../permission-config.js'
 
@@ -16,7 +16,7 @@ const hook: Hook<'prerun'> = async function ({Command, config}) {
     denyRules: [],
   }
 
-  const normalizedId = Command.id.replaceAll(':', config.topicSeparator)
+  const normalizedId = Command.id.split(':').join(config.topicSeparator)
   if (!isCommandAllowed(normalizedId, permissionConfig)) {
     throw new Errors.CLIError(`Command "${normalizedId}" is not permitted.`)
   }

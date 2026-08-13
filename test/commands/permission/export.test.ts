@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 import {mkdtemp, readFile, rm} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import PermissionExport from '../../../src/commands/permission/export.js'
 import {writePermissionConfig} from '../../../src/permission-config.js'
@@ -25,7 +25,7 @@ describe('permission export', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {
@@ -33,7 +33,7 @@ describe('permission export', () => {
   })
 
   it('exports an empty config to a JSON file', async () => {
-    const outFile = join(tmpDir, 'out.json')
+    const outFile = path.join(tmpDir, 'out.json')
     const {cmd, output} = makeExport([outFile], tmpDir)
     await cmd.run()
 
@@ -46,7 +46,7 @@ describe('permission export', () => {
     const denyRules = [{pattern: 'jira'}, {pattern: 'mysql *'}]
     await writePermissionConfig(tmpDir, {allowRules: [], denyRules})
 
-    const outFile = join(tmpDir, 'out.json')
+    const outFile = path.join(tmpDir, 'out.json')
     const {cmd} = makeExport([outFile], tmpDir)
     await cmd.run()
 
