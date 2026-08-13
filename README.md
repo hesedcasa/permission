@@ -20,7 +20,7 @@ $ npm install -g @hesed/permission
 $ permission COMMAND
 running command...
 $ permission (--version)
-@hesed/permission/0.3.0 linux-x64 node-v22.22.3
+@hesed/permission/0.3.1 linux-x64 node-v22.23.1
 $ permission --help [COMMAND]
 USAGE
   $ permission COMMAND
@@ -64,7 +64,7 @@ EXAMPLES
   $ permission permission allow "jira issue create"
 ```
 
-_See code: [src/commands/permission/allow.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/allow.ts)_
+_See code: [src/commands/permission/allow.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/allow.ts)_
 
 ## `permission permission check COMMAND`
 
@@ -88,7 +88,7 @@ EXAMPLES
   $ permission permission check jira issue create
 ```
 
-_See code: [src/commands/permission/check.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/check.ts)_
+_See code: [src/commands/permission/check.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/check.ts)_
 
 ## `permission permission disallow PATTERN`
 
@@ -114,7 +114,7 @@ EXAMPLES
   $ permission permission disallow "jira issue create"
 ```
 
-_See code: [src/commands/permission/disallow.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/disallow.ts)_
+_See code: [src/commands/permission/disallow.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/disallow.ts)_
 
 ## `permission permission export FILE`
 
@@ -134,7 +134,7 @@ EXAMPLES
   $ permission permission export permission.json
 ```
 
-_See code: [src/commands/permission/export.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/export.ts)_
+_See code: [src/commands/permission/export.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/export.ts)_
 
 ## `permission permission import FILE`
 
@@ -154,7 +154,7 @@ EXAMPLES
   $ permission permission import permission.json
 ```
 
-_See code: [src/commands/permission/import.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/import.ts)_
+_See code: [src/commands/permission/import.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/import.ts)_
 
 ## `permission permission list`
 
@@ -176,7 +176,7 @@ EXAMPLES
   $ permission permission list --json
 ```
 
-_See code: [src/commands/permission/list.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/list.ts)_
+_See code: [src/commands/permission/list.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/list.ts)_
 
 ## `permission permission remove PATTERN`
 
@@ -206,7 +206,7 @@ EXAMPLES
   $ permission permission remove jira --disallow
 ```
 
-_See code: [src/commands/permission/remove.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/remove.ts)_
+_See code: [src/commands/permission/remove.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/remove.ts)_
 
 ## `permission permission reset`
 
@@ -228,5 +228,5 @@ EXAMPLES
   $ permission permission reset --confirm
 ```
 
-_See code: [src/commands/permission/reset.ts](https://github.com/hesedcasa/permission/blob/v0.3.0/src/commands/permission/reset.ts)_
+_See code: [src/commands/permission/reset.ts](https://github.com/hesedcasa/permission/blob/v0.3.1/src/commands/permission/reset.ts)_
 <!-- commandsstop -->
