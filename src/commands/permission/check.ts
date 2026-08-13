@@ -9,12 +9,14 @@ export default class PermissionCheck extends Command {
       required: true,
     }),
   }
+
   static description = 'Check whether a command is allowed and which rule decides it'
   static examples = [
     '<%= config.bin %> permission check jira',
     '<%= config.bin %> permission check "jira issue create"',
     '<%= config.bin %> permission check jira issue create',
   ]
+
   // Accept unquoted multi-word commands: `permission check jira issue create`.
   static strict = false
 

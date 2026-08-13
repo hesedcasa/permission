@@ -1,4 +1,4 @@
-import {Errors, Hook} from '@oclif/core'
+import {Errors, type Hook} from '@oclif/core'
 
 import {isCommandAllowed, readPermissionConfig} from '../../permission-config.js'
 
@@ -30,17 +30,17 @@ const hook: Hook<'init'> = async function (opts) {
     opts.id === 'help' && opts.argv.length > 0
       ? opts.argv.filter((a) => !a.startsWith('-')).join(opts.config.topicSeparator)
       : opts.id
-  const invokedId = rawId?.replaceAll(':', opts.config.topicSeparator)
+  const invokedId = rawId?.split(':').join(opts.config.topicSeparator)
 
   for (const [id, command] of internalCommands) {
-    const normalizedId = id.replaceAll(':', opts.config.topicSeparator)
+    const normalizedId = id.split(':').join(opts.config.topicSeparator)
     if (!isCommandAllowed(normalizedId, permissionConfig)) {
       command.hidden = true
     }
   }
 
   for (const [id, topic] of internalTopics) {
-    const normalizedId = id.replaceAll(':', opts.config.topicSeparator)
+    const normalizedId = id.split(':').join(opts.config.topicSeparator)
     if (!isCommandAllowed(normalizedId, permissionConfig)) {
       topic.hidden = true
     }

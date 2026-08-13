@@ -9,6 +9,7 @@ export default class PermissionAllow extends Command {
       required: true,
     }),
   }
+
   static description = 'Allow a command pattern in the permission list'
   static examples = [
     '<%= config.bin %> permission allow "*"',
@@ -39,8 +40,8 @@ export default class PermissionAllow extends Command {
     await writePermissionConfig(this.config.configDir, config)
     this.log(`Added allow rule for "${pattern}".`)
 
-    const knownIds = (this.config.commands ?? []).map((c) => c.id.replaceAll(':', this.config.topicSeparator ?? ' '))
-    if (knownIds.length > 0 && !knownIds.some((id) => matchesPattern(id, pattern))) {
+    const knownIds = (this.config.commands ?? []).map((c) => c.id.split(':').join(this.config.topicSeparator ?? ' '))
+    if (knownIds.length > 0 && knownIds.every((id) => !matchesPattern(id, pattern))) {
       this.warn(`Pattern "${pattern}" does not match any known command — check it for typos.`)
     }
   }

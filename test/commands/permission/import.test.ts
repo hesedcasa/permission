@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 import {mkdtemp, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import PermissionImport from '../../../src/commands/permission/import.js'
 import {readPermissionConfig} from '../../../src/permission-config.js'
@@ -25,7 +25,7 @@ describe('permission import', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {
@@ -34,7 +34,7 @@ describe('permission import', () => {
 
   it('imports rules from a valid JSON file', async () => {
     const rules = [{pattern: 'jira'}, {pattern: 'mysql'}]
-    const inFile = join(tmpDir, 'input.json')
+    const inFile = path.join(tmpDir, 'input.json')
     await writeFile(inFile, JSON.stringify({rules}), 'utf8')
 
     const {cmd, output} = makeImport([inFile], tmpDir)
@@ -46,7 +46,7 @@ describe('permission import', () => {
   })
 
   it('imports a single rule with correct singular message', async () => {
-    const inFile = join(tmpDir, 'input.json')
+    const inFile = path.join(tmpDir, 'input.json')
     await writeFile(inFile, JSON.stringify({allowRules: [], rules: [{pattern: '*'}]}), 'utf8')
 
     const {cmd, output} = makeImport([inFile], tmpDir)
@@ -57,7 +57,7 @@ describe('permission import', () => {
   })
 
   it('throws for a non-existent file', async () => {
-    const {cmd} = makeImport([join(tmpDir, 'missing.json')], tmpDir)
+    const {cmd} = makeImport([path.join(tmpDir, 'missing.json')], tmpDir)
     let threw = false
     try {
       await cmd.run()
@@ -69,7 +69,7 @@ describe('permission import', () => {
   })
 
   it('throws for a file with invalid JSON', async () => {
-    const inFile = join(tmpDir, 'bad.json')
+    const inFile = path.join(tmpDir, 'bad.json')
     await writeFile(inFile, 'not json', 'utf8')
     const {cmd} = makeImport([inFile], tmpDir)
     let threw = false
@@ -83,7 +83,7 @@ describe('permission import', () => {
   })
 
   it('throws when the rules field is missing', async () => {
-    const inFile = join(tmpDir, 'noarray.json')
+    const inFile = path.join(tmpDir, 'noarray.json')
     await writeFile(inFile, JSON.stringify({somethingElse: []}), 'utf8')
     const {cmd} = makeImport([inFile], tmpDir)
     let threw = false
@@ -97,7 +97,7 @@ describe('permission import', () => {
   })
 
   it('throws when a rule has no pattern', async () => {
-    const inFile = join(tmpDir, 'badpattern.json')
+    const inFile = path.join(tmpDir, 'badpattern.json')
     await writeFile(inFile, JSON.stringify({rules: [{notAPattern: 'jira'}]}), 'utf8')
     const {cmd} = makeImport([inFile], tmpDir)
     let threw = false
@@ -111,7 +111,7 @@ describe('permission import', () => {
   })
 
   it('defaults legacy files without allowRules to allow all commands', async () => {
-    const inFile = join(tmpDir, 'legacy.json')
+    const inFile = path.join(tmpDir, 'legacy.json')
     await writeFile(inFile, JSON.stringify({rules: [{pattern: 'mysql'}]}), 'utf8')
 
     const {cmd} = makeImport([inFile], tmpDir)
@@ -122,7 +122,7 @@ describe('permission import', () => {
   })
 
   it('throws when allowRules is null', async () => {
-    const inFile = join(tmpDir, 'badallowrules.json')
+    const inFile = path.join(tmpDir, 'badallowrules.json')
     await writeFile(inFile, JSON.stringify({allowRules: null, rules: []}), 'utf8')
     const {cmd} = makeImport([inFile], tmpDir)
     let threw = false
@@ -136,7 +136,7 @@ describe('permission import', () => {
   })
 
   it('imports a versioned file with denyRules', async () => {
-    const inFile = join(tmpDir, 'v1.json')
+    const inFile = path.join(tmpDir, 'v1.json')
     await writeFile(
       inFile,
       JSON.stringify({allowRules: [{pattern: '*'}], denyRules: [{pattern: 'mysql'}], version: 1}),
@@ -153,7 +153,7 @@ describe('permission import', () => {
   })
 
   it('does not apply the legacy allow-all default to versioned files', async () => {
-    const inFile = join(tmpDir, 'v1-noallow.json')
+    const inFile = path.join(tmpDir, 'v1-noallow.json')
     await writeFile(inFile, JSON.stringify({denyRules: [], version: 1}), 'utf8')
 
     const {cmd} = makeImport([inFile], tmpDir)
@@ -164,7 +164,7 @@ describe('permission import', () => {
   })
 
   it('throws when the file version is newer than supported', async () => {
-    const inFile = join(tmpDir, 'future.json')
+    const inFile = path.join(tmpDir, 'future.json')
     await writeFile(inFile, JSON.stringify({allowRules: [], denyRules: [], version: 99}), 'utf8')
 
     const {cmd} = makeImport([inFile], tmpDir)

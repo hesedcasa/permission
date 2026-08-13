@@ -2,7 +2,7 @@ import {Errors} from '@oclif/core'
 import {expect} from 'chai'
 import {mkdtemp, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import hook from '../../../src/hooks/prerun/check-permission.js'
 import {writePermissionConfig} from '../../../src/permission-config.js'
@@ -22,7 +22,7 @@ describe('prerun/check-permission hook', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {
@@ -116,7 +116,7 @@ describe('prerun/check-permission hook', () => {
   })
 
   it('throws (instead of allowing everything) when the config file is corrupted', async () => {
-    await writeFile(join(tmpDir, 'permission.json'), '{not valid json', 'utf8')
+    await writeFile(path.join(tmpDir, 'permission.json'), '{not valid json', 'utf8')
     const opts = makeOpts(tmpDir, 'jira issue')
     try {
       await hook.call({} as never, opts)

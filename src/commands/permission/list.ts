@@ -1,6 +1,6 @@
 import {Command} from '@oclif/core'
 
-import {PermissionConfig, readPermissionConfig} from '../../permission-config.js'
+import {type PermissionConfig, readPermissionConfig} from '../../permission-config.js'
 
 export default class PermissionList extends Command {
   static description = 'List all rules in the permission list'

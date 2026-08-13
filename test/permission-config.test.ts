@@ -1,7 +1,7 @@
 import {expect} from 'chai'
 import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises'
 import {tmpdir} from 'node:os'
-import {join} from 'node:path'
+import path from 'node:path'
 
 import {
   canonicalPattern,
@@ -16,7 +16,7 @@ describe('permission config', () => {
   let tmpDir: string
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'sdkck-test-'))
+    tmpDir = await mkdtemp(path.join(tmpdir(), 'sdkck-test-'))
   })
 
   afterEach(async () => {
@@ -24,7 +24,7 @@ describe('permission config', () => {
   })
 
   it('defaults legacy configs without allowRules to allow all commands', async () => {
-    await writeFile(join(tmpDir, 'permission.json'), JSON.stringify({rules: [{pattern: 'mysql'}]}), 'utf8')
+    await writeFile(path.join(tmpDir, 'permission.json'), JSON.stringify({rules: [{pattern: 'mysql'}]}), 'utf8')
 
     const config = (await readPermissionConfig(tmpDir))!
 
@@ -35,7 +35,7 @@ describe('permission config', () => {
   })
 
   it('reads legacy configs with an explicit empty allowRules list', async () => {
-    await writeFile(join(tmpDir, 'permission.json'), JSON.stringify({allowRules: [], rules: []}), 'utf8')
+    await writeFile(path.join(tmpDir, 'permission.json'), JSON.stringify({allowRules: [], rules: []}), 'utf8')
 
     const config = (await readPermissionConfig(tmpDir))!
 
@@ -46,7 +46,7 @@ describe('permission config', () => {
   it('round-trips a config through write and read with a version stamp', async () => {
     await writePermissionConfig(tmpDir, {allowRules: [{pattern: 'jira'}], denyRules: [{pattern: 'mysql'}]})
 
-    const raw = JSON.parse(await readFile(join(tmpDir, 'permission.json'), 'utf8'))
+    const raw = JSON.parse(await readFile(path.join(tmpDir, 'permission.json'), 'utf8'))
     expect(raw.version).to.equal(1)
 
     const config = (await readPermissionConfig(tmpDir))!
@@ -54,7 +54,7 @@ describe('permission config', () => {
   })
 
   it('does not apply the legacy allow-all default to versioned configs', async () => {
-    await writeFile(join(tmpDir, 'permission.json'), JSON.stringify({denyRules: [], version: 1}), 'utf8')
+    await writeFile(path.join(tmpDir, 'permission.json'), JSON.stringify({denyRules: [], version: 1}), 'utf8')
 
     const config = (await readPermissionConfig(tmpDir))!
 
@@ -63,7 +63,7 @@ describe('permission config', () => {
 
   it('throws when the config version is newer than supported', async () => {
     await writeFile(
-      join(tmpDir, 'permission.json'),
+      path.join(tmpDir, 'permission.json'),
       JSON.stringify({allowRules: [], denyRules: [], version: 99}),
       'utf8',
     )

@@ -1,12 +1,12 @@
 import {existsSync} from 'node:fs'
 import {mkdir, readFile, writeFile} from 'node:fs/promises'
-import {join} from 'node:path'
+import path from 'node:path'
 
-interface PermissionRule {
+type PermissionRule = {
   pattern: string
 }
 
-export interface PermissionConfig {
+export type PermissionConfig = {
   allowRules: PermissionRule[]
   denyRules: PermissionRule[]
 }
@@ -23,7 +23,7 @@ export interface PermissionConfig {
 export const CONFIG_VERSION = 1
 
 /** On-disk shape across all supported schema versions. */
-interface StoredPermissionConfig {
+type StoredPermissionConfig = {
   allowRules?: null | PermissionRule[]
   denyRules?: PermissionRule[]
   /** Pre-versioning name for denyRules. */
@@ -32,7 +32,7 @@ interface StoredPermissionConfig {
 }
 
 function permissionConfigPath(configDir: string): string {
-  return join(configDir, 'permission.json')
+  return path.join(configDir, 'permission.json')
 }
 
 /**
@@ -67,7 +67,7 @@ export async function readPermissionConfig(configDir: string | undefined): Promi
   try {
     parsed = JSON.parse(content) as StoredPermissionConfig
   } catch (error) {
-    throw new Error(`Permission config at ${filePath} is not valid JSON: ${(error as Error).message}`)
+    throw new Error(`Permission config at ${filePath} is not valid JSON: ${(error as Error).message}`, {cause: error})
   }
 
   if (parsed.version !== undefined && parsed.version > CONFIG_VERSION) {

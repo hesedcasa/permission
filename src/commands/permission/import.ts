@@ -1,11 +1,11 @@
 import {Args, Command} from '@oclif/core'
 import {readFile} from 'node:fs/promises'
-import {resolve} from 'node:path'
+import path from 'node:path'
 
-import {CONFIG_VERSION, PermissionConfig, writePermissionConfig} from '../../permission-config.js'
+import {CONFIG_VERSION, type PermissionConfig, writePermissionConfig} from '../../permission-config.js'
 
 /** Accepted file shape across all supported schema versions. */
-interface ImportedConfig {
+type ImportedConfig = {
   allowRules?: Array<{pattern: string}> | null
   denyRules?: Array<{pattern: string}>
   /** Pre-versioning name for denyRules. */
@@ -20,12 +20,13 @@ export default class PermissionImport extends Command {
       required: true,
     }),
   }
+
   static description = 'Import the permission configuration from a JSON file'
   static examples = ['<%= config.bin %> permission import permission.json']
 
   async run(): Promise<void> {
     const {args} = await this.parse(PermissionImport)
-    const filePath = resolve(args.file)
+    const filePath = path.resolve(args.file)
 
     let raw: string
     try {

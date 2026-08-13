@@ -15,6 +15,7 @@ export default class PermissionDisallow extends Command {
       required: true,
     }),
   }
+
   static description = 'Disallow a command pattern in the permission list'
   static examples = [
     '<%= config.bin %> permission disallow "*"',
@@ -57,8 +58,8 @@ export default class PermissionDisallow extends Command {
       this.log('Note: permission commands are never gated, so this rule will not block them.')
     }
 
-    const knownIds = (this.config.commands ?? []).map((c) => c.id.replaceAll(':', this.config.topicSeparator ?? ' '))
-    if (knownIds.length > 0 && !knownIds.some((id) => matchesPattern(id, pattern))) {
+    const knownIds = (this.config.commands ?? []).map((c) => c.id.split(':').join(this.config.topicSeparator ?? ' '))
+    if (knownIds.length > 0 && knownIds.every((id) => !matchesPattern(id, pattern))) {
       this.warn(`Pattern "${pattern}" does not match any known command — check it for typos.`)
     }
   }
