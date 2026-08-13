@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/hesedcasa/permission/compare/v0.3.0...v0.3.1) (2026-08-13)
+
+
+### ♻️ Chores
+
+* upgrade ESLint and fix TypeScript compilation errors ([#23](https://github.com/hesedcasa/permission/issues/23)) ([2836635](https://github.com/hesedcasa/permission/commit/2836635fcacbe6b863eb02cd30d936f1f18cbd86))
+
 ## [0.3.0](https://github.com/hesedcasa/permission/compare/v0.2.0...v0.3.0) (2026-06-10)
 
 
